@@ -145,3 +145,69 @@ IN ([11],[12],[14],[15])) AS pivottable;
 
 -- TASK 2.19
 
+SELECT *
+FROM laptop
+CROSS APPLY
+(SELECT maker FROM product WHERE laptop.model=product.model) as P;
+
+
+ -- TASK 2.20 !!!!
+
+SELECT *
+FROM laptop AS l1
+CROSS APPLY(
+SELECT MAX(price) max_price
+FROM Laptop AS l2
+JOIN  Product AS p1 ON l2.model=p1.model 
+WHERE maker = (SELECT maker FROM Product  AS p2 WHERE p2.model= l1.model)
+) AS crossapply;
+
+ -- TASK 2.21
+
+SELECT * 
+FROM laptop AS l1
+CROSS APPLY(
+SELECT TOP 1 * 
+FROM Laptop AS l2 
+WHERE l1.model < l2.model OR
+(l1.model = l2.model 
+AND l1.code < l2.code) 
+ORDER BY model, code) AS crossapply
+ORDER BY l1.model;
+
+ -- TASK 2.22
+
+SELECT * 
+FROM laptop l1
+OUTER APPLY
+(SELECT TOP 1 * 
+FROM Laptop l2 
+WHERE l1.model < l2.model OR
+(l1.model = l2.model 
+AND l1.code < l2.code) 
+ORDER BY model, code) AS outerapply
+ORDER BY L1.model;
+
+-- TASK 2.23
+
+SELECT crossapply.* 
+FROM 
+(SELECT DISTINCT type 
+FROM product) AS pr1 
+CROSS APPLY 
+(SELECT TOP 3 *
+ FROM product AS pr2 
+WHERE  pr1.type=pr2.type 
+ORDER BY pr2.model) AS crossapply;
+
+-- TASK 2.24
+
+SELECT code, name, value 
+FROM Laptop
+CROSS APPLY (
+VALUES('speed', 1)
+,('ram', 1)
+,('hd', 1)
+,('screen', 1)
+) Spec(name, value)
+WHERE code < 4 ;
